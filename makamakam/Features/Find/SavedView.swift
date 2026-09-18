@@ -8,9 +8,20 @@ struct SavedView: View {
     @Environment(Lang.self) private var lang
     @Query private var saved: [SavedGrave]
 
-    private var graves: [Grave] {
-        saved.sorted { $0.savedAt > $1.savedAt }.compactMap { store.grave(id: $0.graveID) }
+    private var kept: [SavedGrave] {
+        saved.sorted { $0.savedAt > $1.savedAt }
     }
+
+    private var graves: [Grave] {
+        kept.compactMap { store.grave(id: $0.graveID) }
+    }
+
+    /// Graves this person kept whose records are no longer in the survey —
+    /// renamed, re-seeded, or removed upstream.
+    ///
+    /// Said out loud rather than quietly dropped: a list that shrinks on its own
+    /// makes somebody wonder whether they imagined keeping it.
+    private var missing: Int { kept.count - graves.count }
 
     var body: some View {
         NavigationStack {
@@ -32,6 +43,15 @@ struct SavedView: View {
                         ForEach(graves) { grave in
                             NavigationLink(value: grave) { GraveRow(grave: grave) }
                                 .buttonStyle(.plain)
+                        }
+                    }
+
+                    if missing > 0 {
+                        Plaque {
+                            Text(lang.t(.savedMissing, missing))
+                                .font(.spoken(13))
+                                .foregroundStyle(Palette.inkSoft)
+                                .lineSpacing(3)
                         }
                     }
                 }

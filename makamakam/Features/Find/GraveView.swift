@@ -19,7 +19,16 @@ struct GraveView: View {
         Records.steward(for: grave.id, store: store, context: context)
     }
 
-    private var isSaved: Bool { Records.isSaved(grave.id, context: context) }
+    /// Observed, not fetched.
+    ///
+    /// This was a plain fetch, which SwiftData has no reason to re-run when the
+    /// store changes — so the bookmark kept its old shape after a tap. It looked
+    /// as though nothing had happened, which invites a second tap, which
+    /// un-keeps the grave. The list really was empty; the button was lying about
+    /// why.
+    @Query private var keptGraves: [SavedGrave]
+
+    private var isSaved: Bool { keptGraves.contains { $0.graveID == grave.id } }
 
     /// "Done at the cemetery · 12 km away" — the lock and the reason to travel,
     /// in one line.

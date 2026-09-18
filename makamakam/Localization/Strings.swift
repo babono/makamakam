@@ -19,7 +19,7 @@ enum S: String {
     // Find
     case findPrivacyNote
     case findMapCaveat, findRecentre
-    case savedTitle, savedEmpty, savedEmptyNote, settingsTitle
+    case savedTitle, savedEmpty, savedEmptyNote, savedMissing, settingsTitle
     case nearbySurveyed, nearbyNotSurveyed, nearbyDirections, nearbyFromAppleMaps
     case nearbyDismiss
     case findCemeteryPlaceholder, findCemeteryPrivacyNote
@@ -169,6 +169,10 @@ enum Strings {
         .tabSettings: ("Pengaturan", "Settings"),
 
         .savedTitle: ("Makam yang Anda simpan", "Graves you kept"),
+        .savedMissing: (
+            "%d makam yang Anda simpan tidak lagi ada dalam data survei. Catatannya mungkin diperbarui atau dihapus oleh pengurus.",
+            "%d graves you kept are no longer in the survey. Their records may have been changed or removed by the caretaker."
+        ),
         .savedEmpty: ("Belum ada makam yang disimpan.", "You haven't kept any graves yet."),
         .savedEmptyNote: (
             "Cari sebuah nama, lalu ketuk tanda pembatas di kanan atas untuk menyimpannya di sini. Daftar ini hanya milik Anda — pengguna lain tidak bisa melihatnya.",
