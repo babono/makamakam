@@ -11,6 +11,67 @@ Built for the Apple Developer Academy challenge, against one real cemetery:
 > stories can be read and written from anywhere. The check-in cannot, because it
 > asserts presence and must therefore be earned.
 
+
+---
+
+## The challenge
+
+A solo challenge at the **Apple Developer Academy, Bali**. Three ingredients were
+chosen, and each one changed the product rather than decorating it.
+
+### 1 · App requirements based on research
+
+Research at the site produced three findings that overruled the original design:
+
+- **Wayfinding.** Visitors arrive unable to find a relative; staff search a paper
+  ledger by date of death. The premise held.
+- **Religious constraint.** Classical adab treats a cemetery as *tempat mengambil
+  pelajaran* — a place for taking lessons. That reasoning extends to music, whose
+  status in Indonesian practice is contested anyway, so **the music feature was
+  cut**, not made optional. Jumhur ulama hold that building on a grave is haram,
+  which is why nothing in this product is ever added to a grave — no plaque, no
+  code, no hardware.
+- **Field corrections.** Some stones carry **no name and no date**; there are **no
+  consistent rows**; and graves are **managed collectively** by a *kelompok* rather
+  than by individual families. The first makes wayfinding the only route to those
+  graves rather than a convenience. The second killed the grid. The third is a hole
+  in the data model, recorded as such in the PRD rather than papered over.
+
+### 2 · Collecting, evaluating, prioritising and presenting findings
+
+The surveyed cemetery decided the geometry. Graves are scattered, at angles, around
+a tree — so the app moved **from rows and columns to plotting by approximation**:
+positions are tape-measured offsets from the gate, drawn to scale on a `Canvas`.
+
+Relative accuracy is what matters. Offsets are right to the centimetre *relative to
+each other*, and the whole plot shares one GPS error rather than every grave
+carrying its own — so a visitor matches a **shape** to what they see, and a shape
+four metres out is still unmistakably that shape.
+
+### 3 · Features that reduce cognitive load
+
+| | from | to |
+|---|---|---|
+| **Task complexity** | asking people, getting lost in a cemetery | find grave → navigate → arrive |
+| **GPS limitation** | an arrow that spins when you are close | photographs and landmarks take over once the arrow stops being trustworthy |
+| **Saved graves** | repeating the whole search every visit | the graves that matter, one tap away |
+
+Three things the app does about it, in the language of the design:
+
+- **Progressive disclosure** — the card where a person is chosen carries three
+  fields: name, parentage, year of death. Enough to answer *is this them*, and
+  nothing that isn't.
+- **Modality shifting and graceful degradation** — haptics escalate as you close in,
+  so the eyes can stay on the graves rather than the screen; and when the compass
+  becomes unreliable the arrow freezes rather than flailing, handing the job to a
+  sentence of landmark.
+- **Recognition over recall** — map pins are photographs of the gate, and arrival
+  is a photograph of the headstone. Nobody has to remember what a place looked like,
+  only recognise it.
+
+A five-minute talk on this is in
+[`documentation/whiteboard-cognitive-load.md`](documentation/whiteboard-cognitive-load.md).
+
 ---
 
 ## Running it
@@ -102,6 +163,10 @@ first one.
   carries only its opening, labelled as such.
 - **Stewardship is not enforceable** by CloudKit; it needs the kelompok to vouch
   through the admin.
+- **The handoff constant needs a decision.** The intent was a handover around 6 m;
+  the formula as written (`combined / tan(20°)`) yields ~12 m for two 3 m errors, so
+  in practice the clamp does the work. Either the angular ceiling or the intended
+  distance is wrong — pick one against `horizontalAccuracy` logged at the site.
 - The survey itself is unrun: `documentation/PRD.md` §14 is the method, §17 the
   questions still to ask.
 
