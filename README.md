@@ -133,7 +133,8 @@ the CloudKit records, publishes the privacy policy, and exports `graves.json`.
 
 ## How it works
 
-**Locate.** The search finds *cemeteries*, not people — there is no national register
+**Locate.** The app can hold several surveyed cemeteries, each with its own plan and
+graves. The search finds *cemeteries*, not people — there is no national register
 of the dead behind this, and starting at the burial ground is honest. Inside one, a
 `Canvas` draws the real irregular spread from tape-measured offsets, with the reader
 as a circle sized to actual GPS accuracy rather than a confident dot. Then an arrow

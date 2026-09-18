@@ -11,7 +11,9 @@ import Observation
 /// already there, never take it away.
 @Observable
 final class GraveStore {
-    private(set) var site: Site
+    /// Every cemetery the app knows the inside of. Usually one; there is no
+    /// reason it should be.
+    private(set) var cemeteries: [Site]
     private(set) var graves: [Grave]
     private(set) var seedMemories: [Memory]
     private(set) var seedVisits: [Visit]
@@ -24,9 +26,13 @@ final class GraveStore {
     /// for it — never as an alert over a grave.
     private(set) var lastSyncFailed = false
 
+    /// The bundled cemetery. Kept because a good deal of the app is written for
+    /// "the cemetery you are looking at" and only needs one when there is one.
+    var site: Site { cemeteries.first ?? Self.load().site }
+
     init() {
         let file = Self.load()
-        site = file.site
+        cemeteries = [file.site]
         graves = file.graves
         seedMemories = file.memories.map {
             Memory(id: $0.id, graveID: $0.graveID, authorName: $0.authorName,
@@ -60,7 +66,7 @@ final class GraveStore {
 
         do {
             let snapshot = try await RemoteCatalog.fetch()
-            guard !snapshot.graves.isEmpty else { return }
+            guard !snapshot.cemeteries.isEmpty, !snapshot.graves.isEmpty else { return }
             CatalogCache.write(snapshot)
             apply(snapshot)
             lastSyncFailed = false
@@ -71,7 +77,7 @@ final class GraveStore {
 
     @MainActor
     private func apply(_ snapshot: RemoteCatalog.Snapshot) {
-        site = snapshot.site
+        cemeteries = snapshot.cemeteries
         graves = snapshot.graves
         lastSynced = snapshot.fetchedAt
     }
@@ -81,7 +87,7 @@ final class GraveStore {
     func forgetSnapshot() {
         CatalogCache.clear()
         let file = Self.load()
-        site = file.site
+        cemeteries = [file.site]
         graves = file.graves
         lastSynced = nil
         lastSyncFailed = false
@@ -101,18 +107,32 @@ final class GraveStore {
         }
     }
 
-    /// The bundled photographs of the cemetery plus anything the field sheet
+    /// The bundled photographs of a cemetery plus anything the field sheet
     /// captured on this device.
-    var sitePhotos: [GravePhoto] {
-        (site.photos ?? []) + SitePhotoStore.captured
+    func photos(for site: Site) -> [GravePhoto] {
+        (site.photos ?? []) + SitePhotoStore.captured(for: site.id)
+    }
+
+    /// The graves inside one cemetery. A record with no cemetery named belongs
+    /// to the bundled one, which is how every seeded grave reads.
+    func graves(in site: Site) -> [Grave] {
+        graves.filter { ($0.cemeteryId ?? self.site.id) == site.id }
+    }
+
+    /// Which cemetery a grave lies in.
+    func site(of grave: Grave) -> Site {
+        cemeteries.first { $0.id == (grave.cemeteryId ?? site.id) } ?? site
+    }
+
+    func cemetery(id: String) -> Site? {
+        cemeteries.first { $0.id == id }
     }
 
     func grave(id: String) -> Grave? {
         graves.first { $0.id == id }
     }
 
-    /// Name search, plus the plot code for the caretaker's own use. Typing a
-    /// name goes straight to the grave (PRD §11).
+    /// Name search across every surveyed cemetery.
     func search(_ term: String) -> [Grave] {
         let query = term.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !query.isEmpty else { return [] }

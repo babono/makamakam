@@ -164,7 +164,9 @@ The cemetery carries the **gate** as its origin, the **wall** as corner offsets,
 
 The map, full screen, resting at about 7 km. **The search finds cemeteries, not
 people** — there is no national register of the dead behind this app, and starting
-at the burial ground is both honest and how the question actually arrives. Search
+at the burial ground is both honest and how the question actually arrives. There may
+be **several surveyed cemeteries**: each gets its own pin, its own plan and its own
+graves, and a name is searched inside one rather than across all of them. Search
 runs without a radius, so "Jakarta" works from Kuta.
 
 Pins are photographs where one exists. The surveyed cemetery is grass with a

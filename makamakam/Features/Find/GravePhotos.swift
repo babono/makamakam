@@ -139,28 +139,28 @@ enum PhotoStore {
 /// name and a pin — so the only way a gate can appear on the map is if somebody
 /// stood at it and took the picture.
 enum SitePhotoStore {
-    private static let key = "site.photos"
+    private static func key(_ siteID: String) -> String { "site.photos.\(siteID)" }
 
-    static var captured: [GravePhoto] {
-        let names = UserDefaults.standard.stringArray(forKey: key) ?? []
+    static func captured(for siteID: String) -> [GravePhoto] {
+        let names = UserDefaults.standard.stringArray(forKey: key(siteID)) ?? []
         return names.enumerated().map { index, name in
             GravePhoto(id: "site-\(index)-\(name)", kind: .cemetery, source: name, caption: nil)
         }
     }
 
-    static func add(_ image: UIImage) {
+    static func add(_ image: UIImage, to siteID: String) {
         let name = "site-\(UUID().uuidString).jpg"
         guard PhotoStore.save(image, named: name) != nil else { return }
-        var names = UserDefaults.standard.stringArray(forKey: key) ?? []
+        var names = UserDefaults.standard.stringArray(forKey: key(siteID)) ?? []
         names.append(name)
-        UserDefaults.standard.set(names, forKey: key)
+        UserDefaults.standard.set(names, forKey: key(siteID))
     }
 
-    static func removeAll() {
-        for photo in captured {
+    static func removeAll(for siteID: String) {
+        for photo in captured(for: siteID) {
             try? FileManager.default.removeItem(
                 at: PhotoStore.directory.appendingPathComponent(photo.source))
         }
-        UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.removeObject(forKey: key(siteID))
     }
 }

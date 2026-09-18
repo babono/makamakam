@@ -18,6 +18,7 @@ struct DeveloperView: View {
     @State private var testDistance: Double = 40
     @State private var sitePhoto: UIImage?
     @State private var capturingSitePhoto = false
+    @State private var photoSite = ""
 
     var body: some View {
         List {
@@ -29,6 +30,7 @@ struct DeveloperView: View {
             simulationSection
             stateSection
         }
+        .onAppear { if photoSite.isEmpty { photoSite = store.site.id } }
         .onDisappear { pulse.stopRehearsing() }
         .navigationTitle(lang.t(.fieldTitle))
         .navigationBarTitleDisplayMode(.inline)
@@ -54,12 +56,17 @@ struct DeveloperView: View {
 
     private var sitePhotoSection: some View {
         Section {
+            Picker(lang.t(.fieldSitePhotoHeader), selection: $photoSite) {
+                ForEach(store.cemeteries) { cemetery in
+                    Text(cemetery.name).tag(cemetery.id)
+                }
+            }
             LabeledContent(lang.t(.fieldSitePhotoCount),
-                           value: "\(SitePhotoStore.captured.count)")
+                           value: "\(SitePhotoStore.captured(for: photoSite).count)")
             Button(lang.t(.fieldSitePhotoAdd)) { capturingSitePhoto = true }
-            if !SitePhotoStore.captured.isEmpty {
+            if !SitePhotoStore.captured(for: photoSite).isEmpty {
                 Button(lang.t(.fieldSitePhotoClear), role: .destructive) {
-                    SitePhotoStore.removeAll()
+                    SitePhotoStore.removeAll(for: photoSite)
                     sitePhoto = nil
                 }
             }
@@ -73,7 +80,7 @@ struct DeveloperView: View {
                 get: { sitePhoto },
                 set: { image in
                     sitePhoto = image
-                    if let image { SitePhotoStore.add(image) }
+                    if let image { SitePhotoStore.add(image, to: photoSite) }
                 }
             ))
             .ignoresSafeArea()

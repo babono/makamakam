@@ -15,7 +15,7 @@ enum RemoteCatalog {
 
     /// What the app keeps between launches: whatever CloudKit last said.
     struct Snapshot: Codable {
-        var site: Site
+        var cemeteries: [Site]
         var graves: [Grave]
         var fetchedAt: Date
     }
@@ -56,23 +56,28 @@ enum RemoteCatalog {
         async let photoRecords = records(ofType: "Photo")
 
         let (cemeteryRows, graveRows, photoRows) = try await (cemeteries, graveRecords, photoRecords)
-        guard let cemetery = cemeteryRows.first else { throw Failure.noCemetery }
+        guard !cemeteryRows.isEmpty else { throw Failure.noCemetery }
 
         // Assets arrive as files CloudKit has already downloaded to a temporary
         // location; they are copied into Documents so the rest of the app can
         // find them by name, offline, for as long as the phone keeps them.
         let photos = photos(from: photoRows)
 
-        let cemeteryID = cemetery.recordID.recordName
-        let site = site(from: cemetery, photos: photos[cemeteryID] ?? [])
+        let sites = cemeteryRows.map {
+            site(from: $0, photos: photos[$0.recordID.recordName] ?? [])
+        }
+        let known = Set(sites.map(\.id))
+
         let graves = graveRows
-            .filter { ($0["cemeteryId"] as? String) == cemeteryID }
+            // A grave belonging to no cemetery we know about is dropped rather
+            // than attached to the first one that happens to be nearby.
+            .filter { known.contains(($0["cemeteryId"] as? String) ?? "") }
             .map { grave(from: $0, photos: photos[$0.recordID.recordName] ?? []) }
             // By name: a ledger number is optional now, and sorting by one that
             // half the graves lack puts them all at the front in arrival order.
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
-        return Snapshot(site: site, graves: graves, fetchedAt: .now)
+        return Snapshot(cemeteries: sites, graves: graves, fetchedAt: .now)
     }
 
     /// Groups photograph records by what they belong to, caching each asset on
@@ -149,6 +154,7 @@ enum RemoteCatalog {
         }
 
         return Site(
+            id: record.recordID.recordName,
             name: name,
             address: address,
             latitude: latitude,
@@ -176,6 +182,7 @@ enum RemoteCatalog {
 
         return Grave(
             id: record.recordID.recordName,
+            cemeteryId: record["cemeteryId"] as? String,
             name: name,
             birthYear: record["birthYear"] as? Int,
             deathDate: record["deathDate"] as? String,

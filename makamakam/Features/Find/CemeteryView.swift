@@ -18,12 +18,16 @@ struct CemeteryView: View {
     @State private var showFullPlan = false
     @FocusState private var searchFocused: Bool
 
-    private var photos: [GravePhoto] { store.sitePhotos }
+    private var photos: [GravePhoto] { store.photos(for: site) }
+
+    private var cemeteryGraves: [Grave] { store.graves(in: site) }
 
     private var graves: [Grave] {
-        let all = store.graves.sorted { $0.name < $1.name }
+        let all = cemeteryGraves.sorted { $0.name < $1.name }
         guard !term.trimmingCharacters(in: .whitespaces).isEmpty else { return all }
-        return store.search(term)
+        // Search inside this cemetery, not across every one the app knows.
+        let ids = Set(cemeteryGraves.map(\.id))
+        return store.search(term).filter { ids.contains($0.id) }
     }
 
     var body: some View {
@@ -117,7 +121,7 @@ struct CemeteryView: View {
             VStack(spacing: 8) {
                 SitePlan(
                     site: site,
-                    graves: store.graves,
+                    graves: cemeteryGraves,
                     target: nil,
                     here: location.location,
                     // North stays up here, as on the full-screen plan. Turning
@@ -144,7 +148,7 @@ struct CemeteryView: View {
         }
         .navigationDestination(item: $tapped) { GraveView(grave: $0) }
         .fullScreenCover(isPresented: $showFullPlan) {
-            PlanScreen(site: site, graves: store.graves)
+            PlanScreen(site: site, graves: cemeteryGraves)
         }
         .task {
             if Demo.screen == .plan { showFullPlan = true }
@@ -153,8 +157,8 @@ struct CemeteryView: View {
 
     /// How far there is to go, which is the whole invitation.
     private var distanceLine: String {
-        if presence.atSite { return lang.t(.lockAtSite) }
-        guard let metres = presence.metresFromSite else { return lang.t(.lockDistanceUnknown) }
+        if presence.isAt(site) { return lang.t(.lockAtSite) }
+        guard let metres = presence.metres(from: site) else { return lang.t(.lockDistanceUnknown) }
         return lang.t(.lockDistance, Distance.journeyText(metres))
     }
 
@@ -197,7 +201,7 @@ struct CemeteryView: View {
 
                 Text(distanceLine)
                     .font(.spoken(14, weight: .medium))
-                    .foregroundStyle(presence.atSite ? Palette.grassDeep : Palette.ink)
+                    .foregroundStyle(presence.isAt(site) ? Palette.grassDeep : Palette.ink)
                     .padding(.top, 4)
             }
         }

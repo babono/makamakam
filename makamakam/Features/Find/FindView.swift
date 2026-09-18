@@ -30,11 +30,12 @@ struct FindView: View {
 
     /// The search at the top of the map looks for burial grounds. Names of the
     /// dead are searched inside one, on the cemetery's own screen.
-    private var matchesSurveyedSite: Bool {
+    private var matchingSurveyed: [Site] {
         let query = term.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !query.isEmpty else { return false }
-        return store.site.name.lowercased().contains(query)
-            || store.site.address.lowercased().contains(query)
+        guard !query.isEmpty else { return [] }
+        return store.cemeteries.filter {
+            $0.name.lowercased().contains(query) || $0.address.lowercased().contains(query)
+        }
     }
 
     private var matchingNearby: [NearbyPlace] {
@@ -52,7 +53,7 @@ struct FindView: View {
     }
 
     private var hasResults: Bool {
-        matchesSurveyedSite || !matchingNearby.isEmpty || !matchingElsewhere.isEmpty
+        !matchingSurveyed.isEmpty || !matchingNearby.isEmpty || !matchingElsewhere.isEmpty
     }
 
     private var nearbyPlaces: [NearbyPlace] {
@@ -72,9 +73,27 @@ struct FindView: View {
     /// Wide enough that the neighbouring burial grounds are on screen from the
     /// start — roughly 7 km across, against a 25 km search radius.
     private var region: MKCoordinateRegion {
-        MKCoordinateRegion(
-            center: store.site.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.06)
+        let coordinates = store.cemeteries.map(\.coordinate)
+        guard let first = coordinates.first else {
+            return MKCoordinateRegion(
+                center: store.site.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.06)
+            )
+        }
+        // Wide enough to hold every surveyed cemetery, and never tighter than
+        // the district around one.
+        let lats = coordinates.map(\.latitude), lons = coordinates.map(\.longitude)
+        let centre = CLLocationCoordinate2D(
+            latitude: (lats.min()! + lats.max()!) / 2,
+            longitude: (lons.min()! + lons.max()!) / 2
+        )
+        _ = first
+        return MKCoordinateRegion(
+            center: centre,
+            span: MKCoordinateSpan(
+                latitudeDelta: max((lats.max()! - lats.min()!) * 1.6, 0.06),
+                longitudeDelta: max((lons.max()! - lons.min()!) * 1.6, 0.06)
+            )
         )
     }
 
@@ -133,7 +152,7 @@ struct FindView: View {
             // The user's own position if it is known, the surveyed cemetery
             // otherwise, so the list is useful before any permission is granted.
             let centre = location.location?.coordinate ?? store.site.coordinate
-            await nearby.search(near: centre, excluding: store.site)
+            await nearby.search(near: centre, excluding: store.cemeteries)
             if Demo.selectsFirstNearbyPin, let first = nearbyPlaces.first {
                 selectedMarker = first.id
             }
@@ -145,16 +164,18 @@ struct FindView: View {
             // The surveyed cemetery wears its own photograph. Tapping it opens
             // the cemetery, and on iOS 18 the picture flies into place as the
             // screen's hero rather than being replaced by a different one.
-            Annotation(store.site.name, coordinate: store.site.coordinate) {
-                Button {
-                    selectedMarker = nil
-                    path.append(store.site)
-                } label: {
-                    sitePin
+            ForEach(store.cemeteries) { cemetery in
+                Annotation(cemetery.name, coordinate: cemetery.coordinate) {
+                    Button {
+                        selectedMarker = nil
+                        path.append(cemetery)
+                    } label: {
+                        sitePin(for: cemetery)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .tag(cemetery.id)
             }
-            .tag(Self.siteTag)
 
             // Other burial grounds sit far enough apart to mark honestly, so
             // they are pins you can tap rather than another list to read.
@@ -179,22 +200,25 @@ struct FindView: View {
     }
 
     @ViewBuilder
-    private var sitePin: some View {
-        let pin = CemeteryPin(photo: store.sitePhotos.first,
+    private func sitePin(for cemetery: Site) -> some View {
+        let pin = CemeteryPin(photo: store.photos(for: cemetery).first,
                               surveyed: true,
-                              selected: selectedMarker == Self.siteTag)
+                              selected: selectedMarker == cemetery.id)
         if #available(iOS 18, *) {
-            pin.matchedTransitionSource(id: Self.siteTag, in: heroNamespace)
+            pin.matchedTransitionSource(id: cemetery.id, in: heroNamespace)
         } else {
             pin
         }
     }
 
-    static let siteTag = "surveyed-site"
-
     private var selectedPlace: NearbyPlace? {
-        guard let selectedMarker, selectedMarker != Self.siteTag else { return nil }
+        guard let selectedMarker, selectedCemetery == nil else { return nil }
         return (nearbyPlaces + elsewhere).first { $0.id == selectedMarker }
+    }
+
+    private var selectedCemetery: Site? {
+        guard let selectedMarker else { return nil }
+        return store.cemetery(id: selectedMarker)
     }
 
     private var overlay: some View {
@@ -275,14 +299,14 @@ struct FindView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                 } else {
-                    if matchesSurveyedSite {
-                        NavigationLink(value: store.site) {
-                            CemeteryRow(name: store.site.name,
-                                        detail: store.site.address,
+                    ForEach(matchingSurveyed) { cemetery in
+                        NavigationLink(value: cemetery) {
+                            CemeteryRow(name: cemetery.name,
+                                        detail: cemetery.address,
                                         surveyed: true)
                         }
                         .buttonStyle(.plain)
-                        if !matchingNearby.isEmpty { Hairline() }
+                        Hairline()
                     }
                     if !matchingNearby.isEmpty {
                         resultsHeader(lang.t(.resultsNearby))
@@ -339,7 +363,7 @@ struct FindView: View {
     private func cemeteryDestination(_ site: Site) -> some View {
         let screen = CemeteryView(site: site)
         if #available(iOS 18, *) {
-            screen.navigationTransition(.zoom(sourceID: Self.siteTag, in: heroNamespace))
+            screen.navigationTransition(.zoom(sourceID: site.id, in: heroNamespace))
         } else {
             screen
         }
@@ -423,8 +447,8 @@ struct FindView: View {
 
     @ViewBuilder
     private func selectionCard(for marker: String) -> some View {
-        if marker == Self.siteTag {
-            Plaque(padding: 0) { surveyedSiteCard }
+        if let cemetery = selectedCemetery {
+            Plaque(padding: 0) { surveyedSiteCard(cemetery) }
                 .transition(.opacity)
         } else if let place = selectedPlace {
             Plaque(padding: 0) {
@@ -435,7 +459,7 @@ struct FindView: View {
     }
 
     /// The one cemetery this app actually knows the inside of.
-    private var surveyedSiteCard: some View {
+    private func surveyedSiteCard(_ cemetery: Site) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: "text.magnifyingglass")
@@ -444,7 +468,7 @@ struct FindView: View {
                     .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(store.site.name)
+                    Text(cemetery.name)
                         .font(.spoken(16, weight: .medium))
                         .foregroundStyle(Palette.ink)
                         .multilineTextAlignment(.leading)
@@ -471,7 +495,7 @@ struct FindView: View {
                 .accessibilityLabel(lang.t(.nearbyDismiss))
             }
 
-            NavigationLink(value: store.site) {
+            NavigationLink(value: cemetery) {
                 Label(lang.t(.cemeteryOpen), systemImage: "magnifyingglass")
                     .font(.spoken(17, weight: .medium))
                     .frame(maxWidth: .infinity, minHeight: 52)

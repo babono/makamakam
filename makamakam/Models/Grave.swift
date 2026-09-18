@@ -9,6 +9,9 @@ import CoreLocation
 /// GPS cannot.
 struct Grave: Identifiable, Codable, Hashable {
     let id: String
+    /// Which burial ground this lies in. Nil means the one the app was built
+    /// with, which is how every bundled record reads.
+    let cemeteryId: String?
     let name: String
     let birthYear: Int?
     let deathDate: String?      // ISO yyyy-MM-dd, as written on the stone
@@ -177,7 +180,10 @@ struct GravePhoto: Codable, Hashable, Identifiable {
     let caption: String?
 }
 
-struct Site: Codable, Hashable {
+/// A surveyed cemetery. There may be several.
+struct Site: Codable, Hashable, Identifiable {
+    /// The record name in CloudKit, or the id the bundle gives it.
+    let id: String
     let name: String
     let address: String
     let latitude: Double

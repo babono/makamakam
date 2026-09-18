@@ -53,7 +53,7 @@ final class NearbyCemeteries {
         return names.contains { lowered.contains($0) }
     }
 
-    func search(near centre: CLLocationCoordinate2D, excluding site: Site) async {
+    func search(near centre: CLLocationCoordinate2D, excluding surveyed: [Site]) async {
         // Don't re-query for every GPS nudge; a few hundred metres changes nothing.
         if let last = lastSearchCentre,
            CLLocation(latitude: last.latitude, longitude: last.longitude)
@@ -69,7 +69,7 @@ final class NearbyCemeteries {
         let span = MKCoordinateSpan(latitudeDelta: 0.45, longitudeDelta: 0.45)
         let region = MKCoordinateRegion(center: centre, span: span)
         let origin = CLLocation(latitude: centre.latitude, longitude: centre.longitude)
-        let surveyed = site.location
+        let surveyedLocations = surveyed.map(\.location)
 
         var found: [String: NearbyPlace] = [:]
         var anySucceeded = false
@@ -95,8 +95,12 @@ final class NearbyCemeteries {
                 // Distance alone is not enough: Apple's pin for a village burial
                 // ground can sit a few hundred metres off the gate the survey
                 // was taken at, so the name is checked too.
-                guard location.distance(from: surveyed) > 200,
-                      !Self.isSamePlace(name, as: site.name) else { continue }
+                // Every cemetery the app already knows is listed on its own, not
+                // as a stranger.
+                let alreadyKnown = zip(surveyedLocations, surveyed).contains { known, site in
+                    location.distance(from: known) <= 200 || Self.isSamePlace(name, as: site.name)
+                }
+                guard !alreadyKnown else { continue }
 
                 let distance = location.distance(from: origin)
                 guard distance <= Self.radius else { continue }

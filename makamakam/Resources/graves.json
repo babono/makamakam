@@ -1,5 +1,6 @@
 {
   "site": {
+    "id": "kuta-pemakaman-islam-ii",
     "name": "Pemakaman Islam II, Lingkungan Desa Adat Kuta",
     "address": "Jl. Bypass Ngurah Rai, Tuban, Badung, Bali",
     "latitude": -8.729891,
@@ -50,7 +51,8 @@
       "photos": [],
       "x": 2.79,
       "y": 8.64,
-      "bearing": 8.6
+      "bearing": 8.6,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-1-02",
@@ -72,7 +74,8 @@
       "photos": [],
       "x": 2.97,
       "y": 6.06,
-      "bearing": 13.5
+      "bearing": 13.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-1-03",
@@ -94,7 +97,8 @@
       "photos": [],
       "x": 3.82,
       "y": 9.24,
-      "bearing": 10.1
+      "bearing": 10.1,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-1-04",
@@ -116,7 +120,8 @@
       "photos": [],
       "x": 2.86,
       "y": 14.11,
-      "bearing": 11.2
+      "bearing": 11.2,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-1-05",
@@ -138,7 +143,8 @@
       "photos": [],
       "x": 0.69,
       "y": 12.5,
-      "bearing": -3.3
+      "bearing": -3.3,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-2-01",
@@ -160,7 +166,8 @@
       "photos": [],
       "x": 8.19,
       "y": 13.15,
-      "bearing": 8.8
+      "bearing": 8.8,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-2-02",
@@ -182,7 +189,8 @@
       "photos": [],
       "x": 8.0,
       "y": 10.58,
-      "bearing": 7.5
+      "bearing": 7.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-2-03",
@@ -204,7 +212,8 @@
       "photos": [],
       "x": 9.0,
       "y": 11.19,
-      "bearing": 10.7
+      "bearing": 10.7,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-2-04",
@@ -226,7 +235,8 @@
       "photos": [],
       "x": 6.9,
       "y": 10.91,
-      "bearing": -7.9
+      "bearing": -7.9,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-2-05",
@@ -248,7 +258,8 @@
       "photos": [],
       "x": 7.51,
       "y": 21.15,
-      "bearing": -0.2
+      "bearing": -0.2,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-3-01",
@@ -270,7 +281,8 @@
       "photos": [],
       "x": 6.08,
       "y": 20.55,
-      "bearing": 14.6
+      "bearing": 14.6,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-3-02",
@@ -292,7 +304,8 @@
       "photos": [],
       "x": 12.85,
       "y": 10.31,
-      "bearing": 4.7
+      "bearing": 4.7,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-3-03",
@@ -314,7 +327,8 @@
       "photos": [],
       "x": 13.58,
       "y": 13.06,
-      "bearing": -1.1
+      "bearing": -1.1,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-3-04",
@@ -336,7 +350,8 @@
       "photos": [],
       "x": 13.56,
       "y": 11.6,
-      "bearing": 14.1
+      "bearing": 14.1,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-3-05",
@@ -358,7 +373,8 @@
       "photos": [],
       "x": 12.61,
       "y": 20.46,
-      "bearing": 1.8
+      "bearing": 1.8,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-4-01",
@@ -380,7 +396,8 @@
       "photos": [],
       "x": 12.71,
       "y": 17.71,
-      "bearing": 0.5
+      "bearing": 0.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-4-02",
@@ -402,7 +419,8 @@
       "photos": [],
       "x": 21.77,
       "y": 17.84,
-      "bearing": 9.5
+      "bearing": 9.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-4-03",
@@ -424,7 +442,8 @@
       "photos": [],
       "x": 20.09,
       "y": 18.62,
-      "bearing": 15.5
+      "bearing": 15.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-4-04",
@@ -446,7 +465,8 @@
       "photos": [],
       "x": 22.56,
       "y": 18.75,
-      "bearing": 6.3
+      "bearing": 6.3,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-4-05",
@@ -468,7 +488,8 @@
       "photos": [],
       "x": 20.58,
       "y": 23.05,
-      "bearing": 5.0
+      "bearing": 5.0,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-5-01",
@@ -490,7 +511,8 @@
       "photos": [],
       "x": 20.97,
       "y": 24.2,
-      "bearing": 6.9
+      "bearing": 6.9,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-5-02",
@@ -512,7 +534,8 @@
       "photos": [],
       "x": 27.49,
       "y": 19.74,
-      "bearing": 4.7
+      "bearing": 4.7,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-5-03",
@@ -534,7 +557,8 @@
       "photos": [],
       "x": 29.24,
       "y": 20.12,
-      "bearing": -5.0
+      "bearing": -5.0,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-5-04",
@@ -556,7 +580,8 @@
       "photos": [],
       "x": 30.9,
       "y": 18.8,
-      "bearing": 9.9
+      "bearing": 9.9,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-5-05",
@@ -578,7 +603,8 @@
       "photos": [],
       "x": 30.82,
       "y": 25.09,
-      "bearing": 3.5
+      "bearing": 3.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-6-01",
@@ -600,7 +626,8 @@
       "photos": [],
       "x": 32.3,
       "y": 26.46,
-      "bearing": -1.5
+      "bearing": -1.5,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     },
     {
       "id": "A-6-02",
@@ -622,7 +649,8 @@
       "photos": [],
       "x": 39.81,
       "y": 25.9,
-      "bearing": 12.3
+      "bearing": 12.3,
+      "cemeteryId": "kuta-pemakaman-islam-ii"
     }
   ],
   "memories": [
