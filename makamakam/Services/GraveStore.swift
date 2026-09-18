@@ -67,12 +67,39 @@ final class GraveStore {
         do {
             let snapshot = try await RemoteCatalog.fetch()
             guard !snapshot.cemeteries.isEmpty, !snapshot.graves.isEmpty else { return }
+            guard isImprovement(snapshot) else { return }
             CatalogCache.write(snapshot)
             apply(snapshot)
             lastSyncFailed = false
         } catch {
             lastSyncFailed = true
         }
+    }
+
+    /// Whether a fetch is worth keeping.
+    ///
+    /// A CloudKit query can come back short without coming back empty — most
+    /// reliably in the minutes after a schema import, while the indexes are
+    /// rebuilt. Such a reply looks like a perfectly good survey with a cemetery
+    /// or a set of photographs quietly missing from it, and because every
+    /// refresh overwrites the cache, one badly timed fetch leaves a burial
+    /// ground unreachable until the next one happens to land.
+    ///
+    /// So a snapshot may add and it may correct, but it may not shrink the
+    /// catalogue. Records really do get deleted, and Settings has "forget the
+    /// downloaded survey" for exactly that — a deliberate act, not a side
+    /// effect of bad timing.
+    private func isImprovement(_ snapshot: RemoteCatalog.Snapshot) -> Bool {
+        guard lastSynced != nil else { return true }
+        if snapshot.cemeteries.count < cemeteries.count { return false }
+        if snapshot.graves.count < graves.count { return false }
+        let hadPhotos = photoCount(cemeteries, graves)
+        return hadPhotos == 0 || photoCount(snapshot.cemeteries, snapshot.graves) > 0
+    }
+
+    private func photoCount(_ sites: [Site], _ graves: [Grave]) -> Int {
+        sites.reduce(0) { $0 + ($1.photos?.count ?? 0) }
+            + graves.reduce(0) { $0 + ($1.photos?.count ?? 0) }
     }
 
     @MainActor
