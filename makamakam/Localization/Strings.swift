@@ -39,6 +39,7 @@ enum S: String {
     case doorGuideTitle, doorGuideDetail
     case doorTendTitle, doorTendDetail
     case doorWallTitle, doorWallDetail, doorProfileTitle, doorProfileDetail
+    case gravePositionUnknown, gravePositionUnknownNote, planSomeUnplaced
     case stewardEyebrow, stewardNote
     case claimNone, claimButton, claimNeedsName
     case diedOn, born, died
@@ -254,6 +255,15 @@ enum Strings {
         .doorTendDetail: (
             "Doa dan bacaan, mengikuti agama yang tercatat untuk almarhum.",
             "Prayers and readings, following the faith recorded for the person buried here."
+        ),
+        .gravePositionUnknown: ("Letak makam belum diukur", "This grave's position is not measured"),
+        .gravePositionUnknownNote: (
+            "Nama dan tanggalnya sudah dicatat dari nisan, tetapi letaknya belum diukur — jadi aplikasi belum bisa menuntun Anda ke sana. Juru kunci atau kelompok pengurus bisa menunjukkannya.",
+            "The name and dates were read from the stone, but nobody has measured where it lies — so the app cannot walk you there yet. The caretaker or the kelompok can point it out."
+        ),
+        .planSomeUnplaced: (
+            "%d makam sudah tercatat tetapi belum diukur letaknya, jadi belum tergambar di denah.",
+            "%d graves are recorded but not yet measured, so they are not on the plan."
         ),
         .doorWallTitle: ("Dinding", "The wall"),
         .doorWallDetail: (

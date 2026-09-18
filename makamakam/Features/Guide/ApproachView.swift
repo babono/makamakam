@@ -14,8 +14,13 @@ struct ApproachView: View {
     @Environment(LocationService.self) private var location
     @Environment(Lang.self) private var lang
 
-    private var distance: Double? { location.distance(to: grave.location) }
-    private var rotation: Double? { location.arrowRotation(to: grave.coordinate) }
+    private var distance: Double? {
+        grave.location.flatMap { location.distance(to: $0) }
+    }
+
+    private var rotation: Double? {
+        grave.coordinate.flatMap { location.arrowRotation(to: $0) }
+    }
 
     /// Full size far away, shrinking to 0.45 at the handoff.
     ///

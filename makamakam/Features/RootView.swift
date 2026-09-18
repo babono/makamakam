@@ -91,7 +91,9 @@ struct RootView: View {
             findPath.append(screen)
         case .orient, .approach, .arrive:
             let metres = Demo.metres ?? (screen == .arrive ? 6 : 40)
-            location.startSimulation(target: grave.coordinate, startingMetres: metres)
+            if let target = grave.coordinate {
+                location.startSimulation(target: target, startingMetres: metres)
+            }
             findPath.append(screen)
         }
     }

@@ -122,12 +122,29 @@ struct GraveView: View {
 
     private var doors: some View {
         VStack(spacing: 10) {
-            Button { showGuide = true } label: {
-                Door(title: lang.t(.doorGuideTitle),
-                     detail: lang.t(.doorGuideDetail),
-                     lockNote: nil)
+            // Only where somebody has measured the grave. A record read off a
+            // stone is worth having on its own; offering to walk to a position
+            // nobody recorded would be the app inventing one.
+            if grave.isPositioned {
+                Button { showGuide = true } label: {
+                    Door(title: lang.t(.doorGuideTitle),
+                         detail: lang.t(.doorGuideDetail),
+                         lockNote: nil)
+                }
+                .buttonStyle(.plain)
+            } else {
+                Plaque(padding: 18) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(lang.t(.gravePositionUnknown))
+                            .font(.spoken(17, weight: .medium))
+                            .foregroundStyle(Palette.ink)
+                        Text(lang.t(.gravePositionUnknownNote))
+                            .font(.spoken(14))
+                            .foregroundStyle(Palette.inkSoft)
+                            .lineSpacing(3)
+                    }
+                }
             }
-            .buttonStyle(.plain)
 
             NavigationLink { TendView(grave: grave) } label: {
                 Door(title: lang.t(.doorTendTitle),

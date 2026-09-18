@@ -52,8 +52,10 @@ final class Presence {
     /// where "at this grave" is the claim being made.
     func atGrave(_ grave: Grave) -> Bool {
         if pretendPresent { return true }
-        guard let here = location.location else { return false }
-        return here.distance(from: grave.location) <= 25
+        // No measured position, no claim of presence: a check-in asserts
+        // something the app would have no way of checking.
+        guard let here = location.location, let target = grave.location else { return false }
+        return here.distance(from: target) <= 25
     }
 
     var locationIsKnown: Bool { location.location != nil }

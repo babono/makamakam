@@ -164,13 +164,15 @@ struct DeveloperView: View {
         Section {
             Picker(lang.t(.fieldSimTarget), selection: $simulationTarget) {
                 Text("—").tag("")
-                ForEach(store.graves) { grave in
+                // Only graves somebody can actually be walked to.
+                ForEach(store.graves.filter(\.isPositioned)) { grave in
                     Text("\(grave.shortPlotLabel) · \(grave.name)").tag(grave.id)
                 }
             }
             Button(lang.t(.fieldSimStart)) {
-                guard let grave = store.grave(id: simulationTarget) else { return }
-                location.startSimulation(target: grave.coordinate)
+                guard let grave = store.grave(id: simulationTarget),
+                      let target = grave.coordinate else { return }
+                location.startSimulation(target: target)
                 dismiss()
             }
             .disabled(simulationTarget.isEmpty)

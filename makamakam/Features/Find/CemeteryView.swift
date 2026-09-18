@@ -134,7 +134,7 @@ struct CemeteryView: View {
                 .frame(height: 260)
 
                 HStack(alignment: .top, spacing: 10) {
-                    Text(lang.t(planCaption))
+                    Text(unplaced > 0 ? lang.t(.planSomeUnplaced, unplaced) : lang.t(planCaption))
                         .font(.spoken(12))
                         .foregroundStyle(Palette.inkSoft)
                     Spacer(minLength: 8)
@@ -153,6 +153,11 @@ struct CemeteryView: View {
         .task {
             if Demo.screen == .plan { showFullPlan = true }
         }
+    }
+
+    /// Graves recorded from a stone that nobody has measured yet.
+    private var unplaced: Int {
+        cemeteryGraves.filter { !$0.isPositioned }.count
     }
 
     /// How far there is to go, which is the whole invitation.

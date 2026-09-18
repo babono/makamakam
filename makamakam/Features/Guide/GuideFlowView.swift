@@ -25,7 +25,8 @@ struct GuideFlowView: View {
     }
 
     private var distance: Double? {
-        location.distance(to: grave.location)
+        guard let target = grave.location else { return nil }
+        return location.distance(to: target)
     }
 
     /// Recomputed as the signal changes: a clear sky keeps the arrow useful

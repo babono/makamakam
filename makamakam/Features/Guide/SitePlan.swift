@@ -62,9 +62,12 @@ struct SitePlan: View {
         return ((plot.minX + plot.maxX) / 2, (plot.minY + plot.maxY) / 2)
     }
 
+    /// Only the graves somebody has measured. The rest are real records with no
+    /// place on a drawing yet, and inventing one for them would be worse than
+    /// leaving them off.
     private var positions: [(grave: Grave, x: Double, y: Double)] {
-        graves.map { grave in
-            let position = grave.localPosition(origin: site)
+        graves.compactMap { grave in
+            guard let position = grave.localPosition(origin: site) else { return nil }
             let rotated = turned(position.x, position.y)
             return (grave, rotated.x, rotated.y)
         }
@@ -79,8 +82,8 @@ struct SitePlan: View {
 
     /// The plot before it is turned — the frame of reference the turn happens in.
     private var rawPlotBounds: (minX: Double, minY: Double, maxX: Double, maxY: Double) {
-        var xs = graves.map { $0.localPosition(origin: site).x }
-        var ys = graves.map { $0.localPosition(origin: site).y }
+        var xs = graves.compactMap { $0.localPosition(origin: site)?.x }
+        var ys = graves.compactMap { $0.localPosition(origin: site)?.y }
         for corner in site.boundary ?? [] where corner.count == 2 {
             xs.append(corner[0])
             ys.append(corner[1])

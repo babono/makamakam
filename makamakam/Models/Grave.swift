@@ -24,8 +24,14 @@ struct Grave: Identifiable, Codable, Hashable {
     let section: String?
     let row: Int?
     let plot: Int?
-    let latitude: Double
-    let longitude: Double
+    /// Where the grave is, when anybody has measured it.
+    ///
+    /// Optional, because a survey arrives in stages: names and dates can be read
+    /// off a stone in an afternoon, while positions need a tape and a second
+    /// visit. A grave with no position is a real record — findable, readable,
+    /// and honest that it cannot yet be walked to.
+    let latitude: Double?
+    let longitude: Double?
     /// Metres east and north of the cemetery's origin — the gate.
     ///
     /// This is what the plan is drawn from, and why it can be trusted: offsets
@@ -76,11 +82,29 @@ struct Grave: Identifiable, Codable, Hashable {
 
     var photoList: [GravePhoto] { photos ?? [] }
 
+    var coordinate: CLLocationCoordinate2D? {
+        guard let latitude, let longitude else { return nil }
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var location: CLLocation? {
+        guard let latitude, let longitude else { return nil }
+        return CLLocation(latitude: latitude, longitude: longitude)
+    }
+
+    /// Whether this grave can be drawn on a plan or walked to at all. False is
+    /// an ordinary state: the stones were photographed before anybody returned
+    /// with a tape.
+    var isPositioned: Bool {
+        (x != nil && y != nil) || coordinate != nil
+    }
+
     /// Where to draw this grave, in metres from the gate. Surveyed offsets when
     /// they exist, otherwise the coordinate projected onto the same local grid —
     /// so a cemetery recorded either way still plots.
-    func localPosition(origin: Site) -> (x: Double, y: Double) {
+    func localPosition(origin: Site) -> (x: Double, y: Double)? {
         if let x, let y { return (x, y) }
+        guard let coordinate else { return nil }
         return Geo.localOffset(of: coordinate, from: origin.coordinate)
     }
 
@@ -101,14 +125,6 @@ struct Grave: Identifiable, Codable, Hashable {
         default:            key = .parentageChild
         }
         return lang.t(key, fatherName)
-    }
-
-    var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-    }
-
-    var location: CLLocation {
-        CLLocation(latitude: latitude, longitude: longitude)
     }
 
     /// "Blok A · Baris 2 · Petak 3", or nothing at all.
@@ -186,6 +202,8 @@ struct Site: Codable, Hashable, Identifiable {
     let id: String
     let name: String
     let address: String
+    /// The gate. Every offset in this cemetery is measured from here, so unlike
+    /// a grave's position this is never optional.
     let latitude: Double
     let longitude: Double
     /// How close you must be for the place to count as "here".
